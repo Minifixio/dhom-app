@@ -1,0 +1,16 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      Bonjour {{name}}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-button color="primary" routerLink="/washing-machine-editor" routerDirection="forward">Ajouter une machine</ion-button>
+  <ion-button color="primary" (click)='disconnect()'>Déconnexion</ion-button>
+  <ion-button color="primary" (click)='test()'>Test</ion-button>
+</ion-content>

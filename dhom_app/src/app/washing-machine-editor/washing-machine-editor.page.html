@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>washing-machine-editor</ion-title>
+    <ion-buttons slot="start">
+        <ion-back-button default-href="/menu/home" routerLink="/menu/home"></ion-back-button>
+      </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content center text-center>
+  <ion-list>
+    <ion-radio-group>
+
+      <ion-list-header>
+       <ion-label>Appareils</ion-label>
+     </ion-list-header>
+
+     <ion-item *ngFor="let machineType of machineTypes">
+       <ion-label>{{machineType.infos.name}}</ion-label>
+       <ion-radio (ionSelect)="onSelectRadioItem(machineType)" value={{machineType.id}}></ion-radio>
+     </ion-item>
+
+    </ion-radio-group>
+  </ion-list>
+
+    <!--<ion-item>
+        <ion-label>Quantité</ion-label>
+        <ion-range [(ngModel)]="rangeQuantity" id="sizeRange" min="0" max="100" step="10" snaps="true" ticks="false" color="secondary" pin="false"></ion-range>
+    </ion-item>-->
+
+    <ion-item>
+      <ion-label center>Programmée pour :</ion-label>
+      <ion-datetime display-format="H:mm" minute-values="0,15,30,45"  [(ngModel)]="timeNow" value="{{timeNow}}"></ion-datetime>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Message :</ion-label>
+      <ion-input [(ngModel)]="machineMessage"  placeholder="Etienne il faut laver tes calecons !"></ion-input>
+    </ion-item>
+
+    <ion-button margin id="okButton"  color="primary" (click)="showSelectedMachine()">OK</ion-button>
+
+    <ion-button margin id="okButton"  color="primary" (click)="test()">POST REQUEST</ion-button>
+
+</ion-content>
+
+
+

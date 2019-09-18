@@ -1,0 +1,7 @@
+{
+  "name": "dhom_app",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}
