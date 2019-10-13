@@ -1,0 +1,70 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>washing-machine-statut</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="refreshPage($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+    <ion-title padding class="ion-text-center">Machines en cours :</ion-title>
+
+    <div id='gauge-div'>
+      <liquid-gauge id='gauge-element' [value]="size" ></liquid-gauge>
+    </div>
+
+    <ion-content center text-center *ngFor="let machine of (machines | async)">
+
+      <ion-button *ngIf="statut=='success'" (click)="joinMachine('join')" class="center-button" shape="round">Participer ?&nbsp;<ion-icon name="checkmark-circle"></ion-icon></ion-button>
+            
+      <ion-card *ngIf="statut=='joining'">
+        <ion-card-title class="ion-text-center" padding>Quantité de linge : <ion-label>{{rangeQuantity}} %</ion-label></ion-card-title>
+
+        <ion-item>
+            <ion-range (ionChange)="updateRange()" [(ngModel)]="rangeQuantity" id="sizeRange" min="0" max="{{maxRange}}" step="10" snaps="true" ticks="false" color="secondary" pin="false">
+                <ion-label slot="end">MAX : {{maxRange}} %</ion-label>
+            </ion-range>
+        </ion-item>
+
+        <ion-button (click)="updateSize()" color="success" class="center-button" shape="round">Valider&nbsp;<ion-icon name="checkmark-circle"></ion-icon></ion-button>
+        <ion-button (click)="joinMachine('leave')" color="danger" class="center-button" shape="round">Annuler&nbsp;<ion-icon name="close-circle"></ion-icon></ion-button>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header>
+            <ion-card-title class="ion-text-center">Type de lavage : <b>{{type}}</b></ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content *ngIf='message != ""' class="ion-text-center">Message : {{message}}</ion-card-content>
+
+      </ion-card>
+
+      <ion-card>
+          <ion-card-header>
+            <ion-card-title class="ion-text-center">Pour <b>{{day}}</b> à <b>{{scheduleTime}}</b></ion-card-title>
+          </ion-card-header>
+        
+          <ion-card-content class="ion-text-center">par : {{userName}}</ion-card-content>
+      </ion-card>
+
+    </ion-content>
+
+    <div *ngIf="statut=='error'" class="center-div">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title class="ion-text-center"><b>Erreur</b> : connexion au serveur impossible...</ion-card-title>
+        </ion-card-header>
+      </ion-card>
+
+      <ion-button (click)="getMachinesInfos()">
+        Rafraichir
+        <ion-icon slot="end" name="md-refresh"></ion-icon>
+      </ion-button>
+    </div>
+
+    <div color="primary" class="center-div" *ngIf="statut=='loading'">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+
+</ion-content>
