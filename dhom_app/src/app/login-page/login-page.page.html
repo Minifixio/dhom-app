@@ -2,26 +2,47 @@
   <ion-toolbar>
     <ion-title padding>
       <ion-icon padding-right='2px' name="lock"></ion-icon>
-      Veuilez choisir un utilisateur 2
+      Veuilez choisir un utilisateur
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content padding>
-  <ion-title padding>{{loginMessage}}</ion-title>
+  
+  <ion-refresher slot="fixed" (ionRefresh)="refreshUsers()">
+      <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-  <ion-item id='user{{user.id}}' *ngFor="let user of (users | async)" (click)='setUser(user.id, user.username)'>
-    <ion-avatar id='user{{user.id}}' slot="start">
-      <img id='user{{user.id}}}' src="https://ionicframework.com/docs/demos/api/avatar/avatar.svg">
-    </ion-avatar>
-    <ion-label id='user{{user.id}}}'>{{user.username}}</ion-label>
-  </ion-item>
+  <div *ngIf="statut=='success'">
+    <ion-title padding>{{loginMessage}}</ion-title>
 
-  <div *ngIf="loginStatus==true" class="btn-cancel">
-    <ion-button routerLink="/menu/home">
-        Annuler
-        <ion-icon slot="end" name="arrow-round-back"></ion-icon>
+    <ion-item id='user{{user.id}}' *ngFor="let user of (users | async)" (click)='setUser(user.id, user.username)'>
+      <ion-avatar id='user{{user.id}}' slot="start">
+        <img id='user{{user.id}}}' src="https://ionicframework.com/docs/demos/api/avatar/avatar.svg">
+      </ion-avatar>
+      <ion-label id='user{{user.id}}}'>{{user.username}}</ion-label>
+    </ion-item>
+
+    <div *ngIf="loginStatus==true" class="btn-cancel">
+      <ion-button routerLink="/menu/home">
+          Annuler
+          <ion-icon slot="end" name="arrow-round-back"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
+  <div *ngIf="statut=='error'" class="center-div">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title class="ion-text-center"><b>Erreur</b> : connexion au serveur impossible...</ion-card-title>
+      </ion-card-header>
+    </ion-card>
+
+    <ion-button (click)="refreshUsers()">
+      Rafraichir
+      <ion-icon slot="end" name="md-refresh"></ion-icon>
     </ion-button>
   </div>
+
 
 </ion-content>

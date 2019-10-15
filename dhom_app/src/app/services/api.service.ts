@@ -30,6 +30,11 @@ export class ApiService {
     return this.http.get(`${this.urlApi}/${this.uriApi}/get-machines`);
   }
 
+  getContributors() {
+    console.log(this.http.get(`${this.urlApi}/${this.uriApi}/get-contributors`));
+    return this.http.get(`${this.urlApi}/${this.uriApi}/get-contributors`);
+  }
+
   getUserById(userId){
     return new Promise((resolve, reject) => {
       this.http.get(`${this.urlApi}/${this.uriApi}/users`).forEach(

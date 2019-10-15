@@ -16,7 +16,7 @@
 
     <ion-content center text-center *ngFor="let machine of (machines | async)">
 
-      <ion-button *ngIf="statut=='success'" (click)="joinMachine('join')" class="center-button" shape="round">Participer ?&nbsp;<ion-icon name="checkmark-circle"></ion-icon></ion-button>
+      <ion-button *ngIf="statut=='success' && showJoinButton" (click)="joinMachine('join')" class="center-button" shape="round">Participer ?&nbsp;<ion-icon name="checkmark-circle"></ion-icon></ion-button>
             
       <ion-card *ngIf="statut=='joining'">
         <ion-card-title class="ion-text-center" padding>Quantité de linge : <ion-label>{{rangeQuantity}} %</ion-label></ion-card-title>
@@ -32,20 +32,34 @@
       </ion-card>
 
       <ion-card>
-        <ion-card-header>
+        <ion-card-header class="card-text">
             <ion-card-title class="ion-text-center">Type de lavage : <b>{{type}}</b></ion-card-title>
         </ion-card-header>
 
-        <ion-card-content *ngIf='message != ""' class="ion-text-center">Message : {{message}}</ion-card-content>
+        <ion-card-content class="card-text" *ngIf='message != ""' class="ion-text-center">Message : {{message}}</ion-card-content>
 
       </ion-card>
 
       <ion-card>
-          <ion-card-header>
+          <ion-card-header class="card-text">
             <ion-card-title class="ion-text-center">Pour <b>{{day}}</b> à <b>{{scheduleTime}}</b></ion-card-title>
           </ion-card-header>
         
-          <ion-card-content class="ion-text-center">par : {{userName}}</ion-card-content>
+          <ion-card-content class="card-text" class="ion-text-center">par : {{userName}}</ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header class="card-text">
+            <ion-card-title class="ion-text-center">Participants :</ion-card-title>
+        </ion-card-header>
+
+        <ion-item *ngFor="let contributor of (contributors)">
+            <ion-avatar slot="start">
+              <img src="https://ionicframework.com/docs/demos/api/avatar/avatar.svg">
+            </ion-avatar>
+            <ion-label>{{contributor[1]}}</ion-label>
+          </ion-item>
+
       </ion-card>
 
     </ion-content>

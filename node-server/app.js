@@ -41,6 +41,25 @@ app.get('/v1/get-machines', function(req, res){
   });
 })
 
+app.get('/v1/get-contributors', function(req, res){
+  var output = [];
+
+  console.log("get-contributors");
+  
+  machines_db.each("SELECT * FROM contributors", function(err, row){
+    if (err){
+      console.log("Erreur get-machines");
+      console.log(err);
+    } else {
+      output.push(row);
+    }
+  }, function(err, nbresults){
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(output));
+    console.log(JSON.stringify(output));
+  });
+})
+
 app.post('/v1/add-machines', function (req, res){
   var content = req.body;
 
@@ -52,14 +71,14 @@ app.post('/v1/add-machines', function (req, res){
   addMachine(content.body.type, content.body.size, content.body.sheduleTime, content.body.user, content.body.day, content.body.message);
 })
 
-app.post('/v1/update-size', function (req, res){
+app.post('/v1/join-machine', function (req, res){
   var content = req.body;
 
-  console.log("add-machines");
+  console.log("join-machines");
   console.log(content);
   res.json(content);
 
-  machines_db.run("UPDATE machines SET size = size + ? WHERE id = 1", content.body.size);
+  addContributor(content.body.machineId, content.body.userId, content.body.size);
 })
 
 app.listen(3000, function () {
@@ -71,6 +90,12 @@ function addMachine(type, size, sheduleTime, createdBy, day, message){
   machines_db.run("INSERT INTO machines(id, size, scheduleTime, type, createdBy, day, message) VALUES(?, ?, ?, ?, ?, ?, ?)", [1, size, sheduleTime, type, createdBy, day, message]);
 }
 
+function addContributor(machineId, userId, size){
+  machines_db.run("UPDATE machines SET size = size + ? WHERE id = 1", size);
+  machines_db.run("INSERT INTO contributors(machine_id, userid, size) VALUES(?, ?, ?)", [machineId, userId, size]);
+}
+
 function deleteLastMachine(){
   machines_db.run("DELETE FROM machines WHERE id=1");
+  machines_db.run("DELETE FROM contributors WHERE machine_id=1");
 }

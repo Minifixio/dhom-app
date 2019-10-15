@@ -3,6 +3,8 @@ import { ApiService } from '../services/api.service';
 import { Observable } from 'rxjs';
 import { Events } from '@ionic/angular';
 import {Http, Headers, RequestOptions} from '@angular/http';
+import { AuthService } from '../auth.service';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-washing-machine-statut',
@@ -26,6 +28,9 @@ export class WashingMachineStatutPage implements OnInit {
   rangeQuantity;
   globalSize;
   maxRange;
+  userId = this.authService.getUserId();
+  contributors = [];
+  showJoinButton = true;
 
   machineTypes = [
     {
@@ -62,6 +67,8 @@ export class WashingMachineStatutPage implements OnInit {
     private apiService: ApiService,
     public events: Events,
     private http: Http,
+    private authService: AuthService,
+    public navCtrl: NavController
   ) { 
     events.subscribe('machine-added', size => {
       this.size = size;
@@ -70,6 +77,8 @@ export class WashingMachineStatutPage implements OnInit {
 
   ngOnInit() {
     this.getMachinesInfos();
+    this.getContributors();
+    this.authService.returnUserId().then(userId => this.userId = userId);
   }
 
   ionViewDidLoad() {
@@ -106,14 +115,45 @@ export class WashingMachineStatutPage implements OnInit {
       } else {
         this.day = "demain";
       };
-      this.apiService.getUserById(data[0].createdBY).then(username => {this.userName = username});
+
+      this.authService.returnUserId().then(userId => {
+        this.userId = userId;
+        if(data[0].createdBY == userId){
+          this.showJoinButton = false;
+        }
+      });
+
+      this.apiService.getUserById(data[0].createdBY).then(username => {
+        this.userName = username;
+      });
     
     }, err => {
       this.statut = "error";
     });
+
+
+    console.log(this.userId);
+    console.log(this.showJoinButton);
+
+  }
+
+  getContributors(){
+    this.contributors = [];
+    this.apiService.getContributors().subscribe(data => {
+      console.log(data);
+      for (let [key, value] of Object.entries(data)) {
+        console.log(`${key}: ${value.userid}`);
+        this.apiService.getUserById(value.userid).then(data => {
+          this.contributors.push([value.userid, data]);
+          console.log(this.contributors);
+        });
+      }
+    });
   }
 
   refreshPage(event){
+    console.log(event);
+    this.getContributors()
     this.getMachinesInfos();
     setTimeout(() => {
       event.target.complete();
@@ -143,15 +183,23 @@ export class WashingMachineStatutPage implements OnInit {
 
     let postParams = {
       body: {
+        machineId: 1,
+        userId: this.userId,
         size: this.rangeQuantity
       }
     } 
 
-    this.http.post("http://localhost:3000/v1/update-size", postParams, options)
+    this.http.post("http://localhost:3000/v1/join-machine", postParams, options)
     .subscribe(data => {
       console.log(data['_body']);
      }, error => {
       console.log(error);// Error getting the data
     });
+
+    setTimeout(() => {
+      this.getMachinesInfos();
+      this.getContributors();    
+    }, 2000);
+
   } 
 }
