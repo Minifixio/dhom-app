@@ -116,6 +116,7 @@ export class WashingMachineStatutPage implements OnInit {
         this.day = "demain";
       };
 
+      // Hide the join button if the user is the creator of the machine
       this.authService.returnUserId().then(userId => {
         this.userId = userId;
         if(data[0].createdBY == userId){
@@ -144,7 +145,15 @@ export class WashingMachineStatutPage implements OnInit {
       for (let [key, value] of Object.entries(data)) {
         console.log(`${key}: ${value.userid}`);
         this.apiService.getUserById(value.userid).then(data => {
-          this.contributors.push([value.userid, data]);
+          this.contributors.push([value.userid, data, value.size]);
+
+          // Hide the join button if the user is already part of the contributors
+          this.authService.returnUserId().then(userId => {
+            if(value.userid == userId){
+              this.showJoinButton = false;
+            }
+          });
+
           console.log(this.contributors);
         });
       }
