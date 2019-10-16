@@ -31,6 +31,7 @@ dhom_app/plugins/ios.json
 dhom_app/$RECYCLE.BIN/
 
 node-server/node_modules
+node-server/serviceAccountKey.json
 envStart.sh
 
 dhom_app/.DS_Store

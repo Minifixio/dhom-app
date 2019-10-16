@@ -12,23 +12,22 @@ export class HomePage {
 
   name = this.authService.username;
   loggedIn: boolean;
-  
+
   constructor(
     private authService: AuthService,
     private navCtrl: NavController,
-    private storage: Storage) { 
-
+    private storage: Storage) {
     }
 
   ngOnInit() {
     this.authService.checkLoggedIn().then(
       loggedIn => {
-        if(!loggedIn){
-          this.navCtrl.navigateRoot('/login-page')
+        if (!loggedIn) {
+          this.navCtrl.navigateRoot('/login-page');
         } else {
           this.authService._loggedIn = true;
           this.loggedIn = true;
-          this.authService.returnUser().then(username => this.name = username)          
+          this.authService.returnUser().then(username => this.name = username);
         }
       }
     );

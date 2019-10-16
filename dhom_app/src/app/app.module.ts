@@ -18,23 +18,26 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { HttpModule } from '@angular/http';
 
+// Pour le PUSH
+import { FCM } from '@ionic-native/fcm/ngx';
 
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
   imports: [
-    BrowserModule, 
+    BrowserModule,
     HttpModule,
-    IonicModule.forRoot(), 
+    IonicModule.forRoot(),
     AppRoutingModule,
-    IonicStorageModule.forRoot(), 
-    HttpClientModule
+    IonicStorageModule.forRoot(),
+    HttpClientModule,
   ],
   providers: [
     StatusBar,
     SplashScreen,
     NativeStorage,
     NavController,
+    FCM,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

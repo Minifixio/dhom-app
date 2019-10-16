@@ -6,6 +6,28 @@ var users_db = new sq.Database(__dirname + '/users.db3');
 var machines_db = new sq.Database(__dirname + '/machines.db3');
 var app = express();
 
+// Firebase configuration for push notifications
+var admin = require("firebase-admin");
+var serviceAccount = require("./serviceAccountKey.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://notifs-android-dhom.firebaseio.com"
+});
+const message = {
+  notification: {
+    title: 'Depuis le serveur NodeJS',
+    body: 'Le coeur du message',
+  },
+  condition: `'washingMachine' in topics`,
+};
+admin.messaging().send(message)
+  .then((resp) => {
+    console.log('Message sent successfully:', resp);
+  }).catch((err) => {
+    console.log('Failed to send the message:', err);
+  });
+
+
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 app.use(cors()) // Active CORS ok pour toute URL
