@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class ApiService {
 
-  urlApi = 'http://localhost:3000';
+  urlApi = 'http://192.168.10.22:3000';
   uriApi = 'v1';
  
   /**

@@ -13,16 +13,6 @@
       <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <ion-card *ngIf="fcmNotificationTitle != null">
-      <ion-card-header>
-        <ion-card-title>{{ fcmNotificationTitle }}</ion-card-title>
-      </ion-card-header>
-  
-      <ion-card-content>
-        {{ fcmNotificationBody }}
-      </ion-card-content>
-    </ion-card>
-
   <div *ngIf="statut=='success'">
     <ion-title padding>{{loginMessage}}</ion-title>
 

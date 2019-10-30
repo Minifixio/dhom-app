@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../services/auth.service';
 import { NavController } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
 import { Observable } from 'rxjs';
-import { FCM } from '@ionic-native/fcm/ngx'; // Push
 
 @Component({
   selector: 'app-login-page',
@@ -16,9 +15,7 @@ export class LoginPagePage implements OnInit {
   id: number;
   loginStatus = this.authService._loggedIn;
   loginMessage: string;
-  statut;
-  fcmNotificationTitle: string = null;
-  fcmNotificationBody: string = null;
+  statut: string;
 
   users: Observable<any>;
 
@@ -26,10 +23,7 @@ export class LoginPagePage implements OnInit {
     private authService: AuthService,
     private navCtrl: NavController,
     private apiService: ApiService,
-    private fcm: FCM
-  ) {
-    this.setupFCM();
-  }
+  ) {}
 
   ngOnInit() {
     this.loginStatus = this.authService._loggedIn;
@@ -61,31 +55,5 @@ export class LoginPagePage implements OnInit {
       this.statut = 'success';
     }
     this.loadUsers();
-  }
-
-  setupFCM() {
-
-    this.fcm.subscribeToTopic('washingMachine');
-
-    // Get FCM token for this app
-    this.fcm.getToken().then(token => {
-      console.log(token);
-    });
-
-    // Listen for the FCM token refresh event
-    this.fcm.onTokenRefresh().subscribe(token => {
-      console.log(token);
-    });
-
-    this.fcm.onNotification().subscribe(data => {
-      console.log(data);
-      if (data.wasTapped) {
-        console.log('Received in background', data);
-      } else {
-        console.log('Received in foreground', data);
-      }
-      this.fcmNotificationTitle = data.title;
-      this.fcmNotificationBody = data.body;
-    });
   }
 }

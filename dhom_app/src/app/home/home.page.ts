@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { NavController } from '@ionic/angular';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../services/auth.service';
 import { Storage } from '@ionic/storage';
+import { FcmService } from '../services/fcm.service';
 
 @Component({
   selector: 'app-home',
@@ -16,7 +17,9 @@ export class HomePage {
   constructor(
     private authService: AuthService,
     private navCtrl: NavController,
-    private storage: Storage) {
+    private storage: Storage,
+    private fcmservice: FcmService) {
+      this.fcmservice.setupFCM();
     }
 
   ngOnInit() {
@@ -39,9 +42,5 @@ export class HomePage {
 
   public disconnect(){
     this.storage.clear();
-  }
-
-  public test(){
-
   }
 }

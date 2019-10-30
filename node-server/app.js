@@ -9,31 +9,23 @@ var app = express();
 // Firebase configuration for push notifications
 var admin = require("firebase-admin");
 var serviceAccount = require("./serviceAccountKey.json");
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://notifs-android-dhom.firebaseio.com"
 });
-const message = {
-  notification: {
-    title: 'Depuis le serveur NodeJS',
-    body: 'Le coeur du message',
-  },
-  condition: `'washingMachine' in topics`,
-};
-admin.messaging().send(message)
-  .then((resp) => {
-    console.log('Message sent successfully:', resp);
-  }).catch((err) => {
-    console.log('Failed to send the message:', err);
-  });
-
 
 app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 app.use(cors()) // Active CORS ok pour toute URL
 
+
+// HTTP GET: return all the users with their id and name
 app.get('/v1/users', function (req, res) {
   var output = [];
+
+  console.log("get-users");
+
   users_db.each("SELECT id, username FROM user", function(err, row) {
     if (err) {
         console.log(err);
@@ -46,7 +38,11 @@ app.get('/v1/users', function (req, res) {
   });
 })
 
+// HTTP GET: return the current machine
 app.get('/v1/get-machines', function(req, res){
+
+  console.log("get-machines");
+
   var output = [];
 
   machines_db.each("SELECT * FROM machines", function(err, row){
@@ -59,10 +55,10 @@ app.get('/v1/get-machines', function(req, res){
   }, function(err, nbresults){
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(output));
-    console.log(JSON.stringify(output));
   });
 })
 
+// HTTP GET: return all the contributors
 app.get('/v1/get-contributors', function(req, res){
   var output = [];
 
@@ -78,21 +74,23 @@ app.get('/v1/get-contributors', function(req, res){
   }, function(err, nbresults){
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(output));
-    console.log(JSON.stringify(output));
   });
 })
 
-app.post('/v1/add-machines', function (req, res){
-  var content = req.body;
+// HTTP POST: add a new machine
+app.post('/v1/add-machine', function (req, res){
+  var content = req.body.body;
 
   console.log("add-machines");
   console.log(content);
   res.json(content);
 
   deleteLastMachine();
-  addMachine(content.body.type, content.body.size, content.body.sheduleTime, content.body.user, content.body.day, content.body.message);
+  addMachine(content);
+  notificationAddMachine(content.creatorId, content.sheduleTime, content.day);
 })
 
+// HTTP POST: add a contributor to a machine
 app.post('/v1/join-machine', function (req, res){
   var content = req.body;
 
@@ -103,21 +101,57 @@ app.post('/v1/join-machine', function (req, res){
   addContributor(content.body.machineId, content.body.userId, content.body.size);
 })
 
-app.listen(3000, function () {
+// Start the express server
+app.listen(3000, '192.168.10.22', function () {
   console.log('Listening on port 3000!');
 })
 
-
-function addMachine(type, size, sheduleTime, createdBy, day, message){
-  machines_db.run("INSERT INTO machines(id, size, scheduleTime, type, createdBy, day, message) VALUES(?, ?, ?, ?, ?, ?, ?)", [1, size, sheduleTime, type, createdBy, day, message]);
+// Add a machine with its type, size, shedule time, creator, day and a message (if there is one)
+function addMachine(content){
+  machines_db.run(
+    "INSERT INTO machines(id, size, scheduleTime, typeId, typeName, creatorId, creatorName, day, message) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+    [1, content.size, content.sheduleTime, content.typeId, content.typeName, content.creatorId, content.creatorName, content.day, content.message]
+  );
 }
 
+// Add a contributor to a machine with a specific machineId
 function addContributor(machineId, userId, size){
   machines_db.run("UPDATE machines SET size = size + ? WHERE id = 1", size);
   machines_db.run("INSERT INTO contributors(machine_id, userid, size) VALUES(?, ?, ?)", [machineId, userId, size]);
 }
 
+// Delete the last machine (for now, we can only have one machine running at time)
 function deleteLastMachine(){
   machines_db.run("DELETE FROM machines WHERE id=1");
   machines_db.run("DELETE FROM contributors WHERE machine_id=1");
 }
+
+async function notificationAddMachine(createdBy, sheduleTime, day){
+
+  users_db.get("SELECT username FROM user WHERE id = ?", [createdBy], function(err, row){
+    var username = row.username;
+
+    if(day == 'tomorrow'){
+      day = "demain";
+    }
+    if(day == 'today'){
+      day = "aujourd'hui"
+    }
+  
+    const message = {
+      notification: {
+        title: username + ' a ajouté une nouvelle machine !',
+        body: 'porgramée pour ' + day + ' à ' + sheduleTime,
+      },
+      condition: `'washingMachine' in topics`,
+    };
+  
+    admin.messaging().send(message)
+    .then((resp) => {
+      console.log('Message sent successfully:', resp);
+    }).catch((err) => {
+      console.log('Failed to send the message:', err);
+    });
+  });
+}
+

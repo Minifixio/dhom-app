@@ -3,7 +3,7 @@ import { ApiService } from '../services/api.service';
 import { Observable } from 'rxjs';
 import { Events } from '@ionic/angular';
 import {Http, Headers, RequestOptions} from '@angular/http';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../services/auth.service';
 import { NavController } from '@ionic/angular';
 
 @Component({
@@ -14,16 +14,28 @@ import { NavController } from '@ionic/angular';
 
 export class WashingMachineStatutPage implements OnInit {
 
-  machines: Observable<any>;
+  machines = {
+    creatorId: 0,
+    creatorName: '',
+    typeId: 0,
+    typeName: '',
+    day: '',
+    scheduleTime: '',
+    size: 0,
+    message: ''
+  };
 
   testMessage = 'hello';
+  progressTime;
+  countdown: string;
+  today = new Date();
   size = 0;
   createdBy: string;
   scheduleTime: string;
   userName: any;
-  day;
+  day: string;
   type;
-  statut = "loading";
+  statut = 'loading';
   message;
   rangeQuantity;
   globalSize;
@@ -31,37 +43,9 @@ export class WashingMachineStatutPage implements OnInit {
   userId = this.authService.getUserId();
   contributors = [];
   showJoinButton = true;
+  urlApi = 'http://192.168.10.22:3000';
+  uriApi = 'v1';
 
-  machineTypes = [
-    {
-      id:1,
-      infos : {
-        name: 'Lavage 40°C',
-        id: 1,
-      }
-    },
-    {
-      id:2,
-      infos : {
-        name: 'Lavage 30°C',
-        id: 2,
-      }
-    },
-    {
-      id:3,
-      infos : {
-        name: 'Lavage Blanc',
-        id: 3,
-      }
-    },
-    {
-      id:4,
-      infos : {
-        name: 'Lavage Sport',
-        id: 4,
-      }
-    }
-  ];
 
   constructor(
     private apiService: ApiService,
@@ -69,80 +53,60 @@ export class WashingMachineStatutPage implements OnInit {
     private http: Http,
     private authService: AuthService,
     public navCtrl: NavController
-  ) { 
+  ) {
     events.subscribe('machine-added', size => {
       this.size = size;
-    })
+      this.getMachinesInfos();
+    });
   }
 
   ngOnInit() {
     this.getMachinesInfos();
     this.getContributors();
     this.authService.returnUserId().then(userId => this.userId = userId);
+    const interval = setInterval(() => {
+      this.countdown = this.getScheduleTime();
+    }, 60000);
   }
 
   ionViewDidLoad() {
-    console.log("View loaded");
     this.getMachinesInfos();
   }
 
-  ionViewDidLeave(){
-    console.log("View left");
+  async getMachinesInfos() {
+    this.statut = 'loading';
+    const result = await this.apiService.getMachine().toPromise();
+
+    this.machines = result[0];
+    this.size = this.machines.size;
+    this.globalSize = this.machines.size;
+    this.machines.message = this.message;
+
+    this.statut = 'success';
+    this.maxRange = 100 - this.machines.size;
+
+    if (this.machines.day === 'today') {
+      this.machines.day = 'aujourd\'hui';
+    } else {
+      this.machines.day = 'demain';
+    }
+
+    console.log(this.machines.message);
+    this.countdown = this.getScheduleTime();
+
+    // Hide the join button if the user is the creator of the machine
+    const userId = await this.authService.returnUserId();
+    this.userId = userId;
+    if (userId === this.machines.creatorId) {
+      this.showJoinButton = false;
+    }
   }
 
-  getMachinesInfos(){
-    this.statut = "loading";
-    this.machines = this.apiService.getMachine();
-
-    this.machines.subscribe(data => {
-      this.statut = "success";
-      this.size = data[0].size;
-      this.globalSize = data[0].size;
-      this.maxRange = 100 - this.globalSize;
-      this.createdBy = data[0].createdBy;
-      this.scheduleTime = data[0].scheduleTime;
-      this.message = data[0].message;
-      console.log(data);
-      
-      this.machineTypes.forEach(obj => {
-        if(obj.id == data[0].type){
-          this.type = obj.infos.name;
-        }
-      });
-
-      if(data[0].day == 'today'){
-        this.day = "aujourd'hui";
-      } else {
-        this.day = "demain";
-      };
-
-      // Hide the join button if the user is the creator of the machine
-      this.authService.returnUserId().then(userId => {
-        this.userId = userId;
-        if(data[0].createdBY == userId){
-          this.showJoinButton = false;
-        }
-      });
-
-      this.apiService.getUserById(data[0].createdBY).then(username => {
-        this.userName = username;
-      });
-    
-    }, err => {
-      this.statut = "error";
-    });
-
-
-    console.log(this.userId);
-    console.log(this.showJoinButton);
-
-  }
-
-  getContributors(){
+  getContributors() {
     this.contributors = [];
     this.apiService.getContributors().subscribe(data => {
       console.log(data);
-      for (let [key, value] of Object.entries(data)) {
+      for (const [key, value] of Object.entries(data)) {
         console.log(`${key}: ${value.userid}`);
         this.apiService.getUserById(value.userid).then(data => {
           this.contributors.push([value.userid, data, value.size]);
@@ -169,46 +133,63 @@ export class WashingMachineStatutPage implements OnInit {
     }, 2000);
   }
 
-  updateRange(){
+  updateRange() {
     console.log(this.rangeQuantity);
     this.size = this.globalSize + this.rangeQuantity;
   }
 
-  joinMachine(info){
-    if(info == "join"){
-      this.statut = "joining";
+  joinMachine(info) {
+    if (info === 'join') {
+      this.statut = 'joining';
     }
-    if(info == "leave"){
-      this.statut = "success";
+    if (info === 'leave') {
+      this.statut = 'success';
     }
   }
 
-  updateSize(){
-    this.statut = "success";
+  updateSize() {
+    this.statut = 'success';
     var headers = new Headers();
-    headers.append("Accept", 'application/json');
+    headers.append('Accept', 'application/json');
     headers.append('Content-Type', 'application/json' );
-    let options = new RequestOptions({ headers: headers });
+    const options = new RequestOptions({ headers: headers });
 
-    let postParams = {
+    const postParams = {
       body: {
         machineId: 1,
         userId: this.userId,
         size: this.rangeQuantity
       }
-    } 
+    };
 
-    this.http.post("http://localhost:3000/v1/join-machine", postParams, options)
+    this.http.post(`${this.urlApi}/${this.uriApi}/join-machine`, postParams, options)
     .subscribe(data => {
       console.log(data['_body']);
      }, error => {
-      console.log(error);// Error getting the data
+      console.log(error); // Error getting the data
     });
+  }
 
-    setTimeout(() => {
-      this.getMachinesInfos();
-      this.getContributors();    
-    }, 2000);
+  getScheduleTime() {
+    const today = new Date();
+    const machineMinutes = (parseInt(this.machines.scheduleTime.substring(3, 6), 10)) / 60;
+    const machineHours = parseInt(this.machines.scheduleTime.substring(0, 2), 10);
+    let machineTime = machineHours + machineMinutes;
 
-  } 
+    const todayTime = today.getHours() + (today.getMinutes() / 60);
+
+    if (this.machines.day === 'demain') {
+      machineTime = machineTime + 24;
+    }
+
+    const timeBetween = (machineTime - todayTime);
+    let minutes = (Math.trunc(timeBetween % 1 * 60)).toString();
+    const hours = Math.trunc(timeBetween);
+    if (parseInt((minutes), 10) < 0) {
+      minutes = '0' + minutes;
+    }
+    const hoursBetween = (hours + 'h et ' + minutes + 'min');
+    this.progressTime = timeBetween / 48;
+    return hoursBetween;
+  }
 }

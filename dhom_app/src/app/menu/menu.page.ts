@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterEvent } from '@angular/router';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../services/auth.service';
  
 @Component({
   selector: 'app-menu',
@@ -21,7 +21,7 @@ export class MenuPage implements OnInit {
       url: '/menu/washing-machine/tab1'
     }
   ];
- 
+
   constructor(private router: Router) {
     this.router.events.subscribe((event: RouterEvent) => {
       if (event && event.url) {
@@ -29,9 +29,8 @@ export class MenuPage implements OnInit {
       }
     });
   }
- 
+
   ngOnInit() {
- 
+
   }
- 
 }

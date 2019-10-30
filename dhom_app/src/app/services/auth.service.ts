@@ -48,13 +48,13 @@ export class AuthService {
     }
   }
 
-  public getUserId(): string {
+  public getUserId(): number {
     if(this._loggedIn){
       this.storage.get('id').then(
         userid => {return userid;}
       );
     } else {
-      return "?";
+      return;
     }
   }
 
@@ -70,13 +70,13 @@ export class AuthService {
     }
   }
   
-  public returnUserId(): Promise<string>{
+  public returnUserId(): Promise<number>{
     if(this._loggedIn){
       return this.storage.get('id');
     } else {
       return new Promise(
         (resolve) => {
-          return "?";
+          return;
         }
       );
     }
