@@ -93,7 +93,10 @@ export class WashingMachineEditorPage implements OnInit {
       this.errorToast(2);
     }
     if (this.timeNow !== this.today.getHours() + ':' + this.today.getMinutes() && this.checkedMachine != null) {
-      this.postRequest(this.checkedMachine, this.timeNow, this.machineMessage, this.rangeQuantity).then(() => {
+
+      let date = this.setupScheduleTime(this.timeNow, this.pickedDay);
+
+      this.postRequest(this.checkedMachine, this.timeNow, date, this.machineMessage, this.rangeQuantity).then(() => {
         this.events.publish('machine-added', this.rangeQuantity);
         this.navCtrl.navigateBack('/menu/washing-machine/tab1');
       });
@@ -124,7 +127,7 @@ export class WashingMachineEditorPage implements OnInit {
     }
   }
 
-  async postRequest(type, hour, message, size) {
+  async postRequest(type, hour, date, message, size) {
 
     const headers = new Headers();
     headers.append('Accept', 'application/json');
@@ -141,8 +144,9 @@ export class WashingMachineEditorPage implements OnInit {
           typeId: type.infos.id,
           typeName: type.infos.name,
           day: this.pickedDay,
-          sheduleTime: hour,
-          size
+          scheduleTime: hour,
+          size,
+          scheduleDate: date
         }
       };
 
@@ -156,9 +160,10 @@ export class WashingMachineEditorPage implements OnInit {
           typeId: type.infos.id,
           typeName: type.infos.name,
           day: this.pickedDay,
-          sheduleTime: hour,
+          scheduleTime: hour,
           message,
-          size
+          size,
+          scheduleDate: date
         }
       };
 
@@ -200,5 +205,36 @@ export class WashingMachineEditorPage implements OnInit {
     this.timer = setTimeout(x => {
       console.log("hey");
       }, 1000);
+  }
+
+  /**
+   * Take a time as string, parse it to get the hours and minutes values and then add the selected day to create a date
+   * @param time string
+   * @param day string
+   */
+  setupScheduleTime(time, day) {
+
+    const minutes = (parseInt(time.substring(3, 6), 10));
+    const hours = parseInt(time.substring(0, 2), 10);
+
+    const today = new Date();
+
+    if (day === 'today') {
+      today.setHours(hours);
+      today.setMinutes(minutes);
+      return today;
+    }
+
+    if (day === 'tomorrow') {
+      today.setDate(today.getDate() + 1);
+      today.setHours(hours);
+      today.setMinutes(minutes);
+      return today;
+    }
+  }
+
+  test() {
+    console.log(typeof this.timeNow);
+    this.setupScheduleTime(this.timeNow, this.pickedDay);
   }
 }

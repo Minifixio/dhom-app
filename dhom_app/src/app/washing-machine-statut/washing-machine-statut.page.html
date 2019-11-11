@@ -4,7 +4,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="ion-text-center">
   <ion-refresher slot="fixed" (ionRefresh)="refreshPage($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -13,8 +13,6 @@
     <div id='gauge-div'>
       <liquid-gauge id='gauge-element' [value]="size" ></liquid-gauge>
     </div>
-
-    <ion-content center class="ion-text-center">
 
       <ion-button *ngIf="statut=='success' && showJoinButton" (click)="joinMachine('join')" class="center-button" shape="round">Participer ?&nbsp;<ion-icon name="checkmark-circle"></ion-icon></ion-button>
             
@@ -46,9 +44,9 @@
             <ion-card-title class="ion-text-center">Pour <b>{{machines.day}}</b> à <b>{{machines.scheduleTime}}</b></ion-card-title>
           </ion-card-header>
 
-          <ion-card-content id="progressBar">
+          <ion-card-content id="progressBarDiv">
             <ion-label class="ion-text-center">Il reste : <b>{{countdown}}</b></ion-label>
-            <ion-progress-bar [value]="progressTime" [buffer]="progressTime"></ion-progress-bar>
+            <ion-progress-bar id="progressBar" [value]="progressTime" [buffer]="progressTime"></ion-progress-bar>
           </ion-card-content>
 
       </ion-card>
@@ -68,7 +66,6 @@
 
       </ion-card>
 
-    </ion-content>
 
     <!--<div *ngIf="statut=='error'" class="center-div">
       <ion-card>

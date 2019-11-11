@@ -22,7 +22,8 @@ export class WashingMachineStatutPage implements OnInit {
     day: '',
     scheduleTime: '',
     size: 0,
-    message: ''
+    message: '',
+    scheduleDate: ''
   };
 
   testMessage = 'hello';
@@ -65,7 +66,7 @@ export class WashingMachineStatutPage implements OnInit {
     this.getContributors();
     this.authService.returnUserId().then(userId => this.userId = userId);
     const interval = setInterval(() => {
-      this.countdown = this.getScheduleTime();
+      this.udpateCountdown(this.machines.scheduleDate);
     }, 60000);
   }
 
@@ -84,15 +85,7 @@ export class WashingMachineStatutPage implements OnInit {
 
     this.statut = 'success';
     this.maxRange = 100 - this.machines.size;
-
-    if (this.machines.day === 'today') {
-      this.machines.day = 'aujourd\'hui';
-    } else {
-      this.machines.day = 'demain';
-    }
-
-    console.log(this.machines.message);
-    this.countdown = this.getScheduleTime();
+    this.udpateCountdown(this.machines.scheduleDate);
 
     // Hide the join button if the user is the creator of the machine
     const userId = await this.authService.returnUserId();
@@ -113,7 +106,7 @@ export class WashingMachineStatutPage implements OnInit {
 
           // Hide the join button if the user is already part of the contributors
           this.authService.returnUserId().then(userId => {
-            if(value.userid == userId){
+            if (value.userid === userId) {
               this.showJoinButton = false;
             }
           });
@@ -124,9 +117,9 @@ export class WashingMachineStatutPage implements OnInit {
     });
   }
 
-  refreshPage(event){
+  refreshPage(event) {
     console.log(event);
-    this.getContributors()
+    this.getContributors();
     this.getMachinesInfos();
     setTimeout(() => {
       event.target.complete();
@@ -170,26 +163,32 @@ export class WashingMachineStatutPage implements OnInit {
     });
   }
 
-  getScheduleTime() {
+  udpateCountdown(dateString: string) {
+    const date = new Date(dateString);
     const today = new Date();
-    const machineMinutes = (parseInt(this.machines.scheduleTime.substring(3, 6), 10)) / 60;
-    const machineHours = parseInt(this.machines.scheduleTime.substring(0, 2), 10);
-    let machineTime = machineHours + machineMinutes;
 
-    const todayTime = today.getHours() + (today.getMinutes() / 60);
+    let hoursDiff = date.getHours() - today.getHours();
+    let minutesDiff = date.getMinutes() - today.getMinutes();
 
-    if (this.machines.day === 'demain') {
-      machineTime = machineTime + 24;
+    if (today.getDay() !== date.getDay()) {
+      hoursDiff = hoursDiff + 24;
+      this.machines.day = 'demain';
+    } else {
+      this.machines.day = 'aujourd\'hui';
     }
 
-    const timeBetween = (machineTime - todayTime);
-    let minutes = (Math.trunc(timeBetween % 1 * 60)).toString();
-    const hours = Math.trunc(timeBetween);
-    if (parseInt((minutes), 10) < 0) {
-      minutes = '0' + minutes;
+    if (minutesDiff < 0) {
+      hoursDiff = hoursDiff - 1;
+      minutesDiff = 60 + minutesDiff;
     }
-    const hoursBetween = (hours + 'h et ' + minutes + 'min');
+
+    const timeBetween = (date.getTime() - today.getTime()) / 3600000;
+    console.log(timeBetween);
     this.progressTime = timeBetween / 48;
-    return hoursBetween;
+    console.log(hoursDiff);
+    console.log(minutesDiff);
+
+    this.countdown = (hoursDiff + 'h et ' + minutesDiff + 'min');
+
   }
 }

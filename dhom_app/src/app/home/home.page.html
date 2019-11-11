@@ -10,7 +10,21 @@
 </ion-header>
 
 <ion-content padding>
-  <ion-button color="primary" routerLink="/washing-machine-editor" routerDirection="forward">Ajouter une machine</ion-button>
-  <ion-button color="primary" (click)='disconnect()'>Déconnexion</ion-button>
-  <ion-button color="primary" (click)='test()'>Test</ion-button>
+  <ion-title class="ion-text-center">Tableau de bord :</ion-title>
+
+  <ion-card id="machineCard">
+      <ion-card-header>
+          <ion-thumbnail>
+              <img src="https://image.flaticon.com/icons/svg/2226/2226109.svg">
+            </ion-thumbnail>      
+      </ion-card-header>
+    
+      <ion-card-content id="machineCardContent">
+        <ion-card-title>
+            <b>{{machinesCount}}</b> machines en cours...
+        </ion-card-title>
+        <div *ngIf="machineType">{{machineType}} </div>
+      </ion-card-content>
+  </ion-card>
+    
 </ion-content>

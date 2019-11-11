@@ -87,7 +87,7 @@ app.post('/v1/add-machine', function (req, res){
 
   deleteLastMachine();
   addMachine(content);
-  notificationAddMachine(content.creatorId, content.sheduleTime, content.day);
+  notificationAddMachine(content.creatorId, content.scheduleTime, content.day);
 })
 
 // HTTP POST: add a contributor to a machine
@@ -106,11 +106,11 @@ app.listen(3000, '192.168.10.22', function () {
   console.log('Listening on port 3000!');
 })
 
-// Add a machine with its type, size, shedule time, creator, day and a message (if there is one)
+// Add a machine with its type, size, schedule time, creator, day and a message (if there is one)
 function addMachine(content){
   machines_db.run(
-    "INSERT INTO machines(id, size, scheduleTime, typeId, typeName, creatorId, creatorName, day, message) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-    [1, content.size, content.sheduleTime, content.typeId, content.typeName, content.creatorId, content.creatorName, content.day, content.message]
+    "INSERT INTO machines(id, size, scheduleTime, typeId, typeName, creatorId, creatorName, day, message, scheduleDate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+    [1, content.size, content.scheduleTime, content.typeId, content.typeName, content.creatorId, content.creatorName, content.day, content.message, content.scheduleDate]
   );
 }
 
@@ -126,7 +126,7 @@ function deleteLastMachine(){
   machines_db.run("DELETE FROM contributors WHERE machine_id=1");
 }
 
-async function notificationAddMachine(createdBy, sheduleTime, day){
+async function notificationAddMachine(createdBy, scheduleTime, day){
 
   users_db.get("SELECT username FROM user WHERE id = ?", [createdBy], function(err, row){
     var username = row.username;
@@ -141,7 +141,7 @@ async function notificationAddMachine(createdBy, sheduleTime, day){
     const message = {
       notification: {
         title: username + ' a ajouté une nouvelle machine !',
-        body: 'porgramée pour ' + day + ' à ' + sheduleTime,
+        body: 'porgramée pour ' + day + ' à ' + scheduleTime,
       },
       condition: `'washingMachine' in topics`,
     };
