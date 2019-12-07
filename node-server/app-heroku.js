@@ -1,10 +1,13 @@
 const express = require('express')
-var port = process.env.PORT || 3000;
-
 var cors = require('cors')
 var sq = require('sqlite3');
+
+// Getting sqlite3 databases
 var users_db = new sq.Database(__dirname + '/database/users.db3');
 var machines_db = new sq.Database(__dirname + '/database/machines.db3');
+
+// Create express instance
+var port = process.env.PORT || 3000;
 var app = express();
 
 // Firebase configuration for push notifications
@@ -23,17 +26,17 @@ app.use(cors()) // Active CORS ok pour toute URL
 
 // HTTP GET: return all the users with their id and name
 app.get('/v1/users', function (req, res) {
-  var output = [];
 
-  console.log("get-users");
+  var output = [];
 
   users_db.each("SELECT id, username FROM user", function(err, row) {
     if (err) {
-        console.log(err);
+      console.log("Erreur users");
+      console.log(err);
     } else {
-        output.push(row);
+      output.push(row);
     }
-  }, function(err, nbresult){
+  }, function() {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(output));
   });
@@ -41,8 +44,6 @@ app.get('/v1/users', function (req, res) {
 
 // HTTP GET: return the current machine
 app.get('/v1/get-machines', function(req, res){
-
-  console.log("get-machines");
 
   var output = [];
 
@@ -53,7 +54,7 @@ app.get('/v1/get-machines', function(req, res){
     } else {
       output.push(row);
     }
-  }, function(err, nbresults){
+  }, function() {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(output));
   });
@@ -61,18 +62,17 @@ app.get('/v1/get-machines', function(req, res){
 
 // HTTP GET: return all the contributors
 app.get('/v1/get-contributors', function(req, res){
-  var output = [];
 
-  console.log("get-contributors");
+  var output = [];
   
   machines_db.each("SELECT * FROM contributors", function(err, row){
     if (err){
-      console.log("Erreur get-machines");
+      console.log("Erreur get-contributors");
       console.log(err);
     } else {
       output.push(row);
     }
-  }, function(err, nbresults){
+  }, function() {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(output));
   });
@@ -86,25 +86,20 @@ app.post('/v1/add-machine', function (req, res){
   console.log(content);
   res.json(content);
 
-  deleteLastMachine();
+  deleteLastMachine(); // Delete last machine
   addMachine(content);
   notificationAddMachine(content.creatorId, content.scheduleTime, content.day);
 })
 
 // HTTP POST: add a contributor to a machine
 app.post('/v1/join-machine', function (req, res){
-  var content = req.body;
+  var content = req.body.body;
 
   console.log("join-machines");
   console.log(content);
   res.json(content);
 
-  addContributor(content.body.machineId, content.body.userId, content.body.size);
-})
-
-// Start the express server
-app.listen(port, function () {
-  console.log('Listening on port 3000!');
+  addContributor(content.machineId, content.userId, content.size);
 })
 
 // Add a machine with its type, size, schedule time, creator, day and a message (if there is one)
@@ -124,14 +119,12 @@ function addContributor(machineId, userId, size){
 // Delete the last machine (for now, we can only have one machine running at time)
 function deleteLastMachine(){
   machines_db.run("DELETE FROM machines WHERE id=1");
-  machines_db.run("DELETE FROM contributors WHERE machine_id=1");
+  machines_db.run("DELETE FROM contributors WHERE machine_id=1"); // Delete contributors from last machine
 }
 
-async function notificationAddMachine(createdBy, scheduleTime, day){
+function notificationAddMachine(createdBy, scheduleTime, day){
 
   users_db.get("SELECT username FROM user WHERE id = ?", [createdBy], function(err, row){
-    var username = row.username;
-
     if(day == 'tomorrow'){
       day = "demain";
     }
@@ -141,7 +134,7 @@ async function notificationAddMachine(createdBy, scheduleTime, day){
   
     const message = {
       notification: {
-        title: username + ' a ajouté une nouvelle machine !',
+        title: row.username + ' a ajouté une nouvelle machine !',
         body: 'porgramée pour ' + day + ' à ' + scheduleTime,
       },
       condition: `'washingMachine' in topics`,
@@ -156,3 +149,7 @@ async function notificationAddMachine(createdBy, scheduleTime, day){
   });
 }
 
+// Start the express server
+app.listen(port, function () {
+  console.log('Listening on port ' + port);
+})
