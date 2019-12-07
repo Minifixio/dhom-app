@@ -16,8 +16,6 @@ import { IonicStorageModule } from '@ionic/storage';
 
 import { HttpClientModule } from '@angular/common/http';
 
-import { HttpModule } from '@angular/http';
-
 // Pour le PUSH
 import { FCM } from '@ionic-native/fcm/ngx';
 
@@ -26,7 +24,6 @@ import { FCM } from '@ionic-native/fcm/ngx';
   entryComponents: [],
   imports: [
     BrowserModule,
-    HttpModule,
     IonicModule.forRoot(),
     AppRoutingModule,
     IonicStorageModule.forRoot(),

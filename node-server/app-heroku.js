@@ -1,9 +1,10 @@
 const express = require('express')
+var port = process.env.PORT || 3000;
 
 var cors = require('cors')
 var sq = require('sqlite3');
-var users_db = new sq.Database(__dirname + '/users.db3');
-var machines_db = new sq.Database(__dirname + '/machines.db3');
+var users_db = new sq.Database(__dirname + '/database/users.db3');
+var machines_db = new sq.Database(__dirname + '/database/machines.db3');
 var app = express();
 
 // Firebase configuration for push notifications
@@ -102,7 +103,7 @@ app.post('/v1/join-machine', function (req, res){
 })
 
 // Start the express server
-app.listen(3000, '192.168.10.22', function () {
+app.listen(port, function () {
   console.log('Listening on port 3000!');
 })
 

@@ -1,5 +1,5 @@
-<ion-split-pane>
-  <ion-menu contentId="content">
+<ion-split-pane contentId="menu-content">
+  <ion-menu contentId="menu-content">
  
     <ion-header>
       <ion-toolbar color="primary">
@@ -21,13 +21,10 @@
           <ion-icon name="log-out" slot="start"></ion-icon>
           Changer d'utilisateur
         </ion-item>
- 
       </ion-list>
- 
+
     </ion-content>
- 
   </ion-menu>
  
-  <ion-router-outlet id="content" main></ion-router-outlet>
- 
+  <ion-router-outlet id="menu-content" main></ion-router-outlet>
 </ion-split-pane>

@@ -12,7 +12,9 @@ export class FcmService {
   constructor(
     private fcm: FCM
   ) {
-    this.setupFCM();
+    if (window.cordova) {
+      this.setupFCM();
+    }
   }
 
   setupFCM() {

@@ -23,7 +23,9 @@ export class HomePage {
     private storage: Storage,
     private fcmservice: FcmService,
     private apiService: ApiService) {
-      this.fcmservice.setupFCM();
+      if (window.cordova) {
+        this.fcmservice.setupFCM();
+      }
     }
 
   ngOnInit() {
@@ -38,7 +40,6 @@ export class HomePage {
         }
       }
     );
-
     this.getMachines();
   }
 

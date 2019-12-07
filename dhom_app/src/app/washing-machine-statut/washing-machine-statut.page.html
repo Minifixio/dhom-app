@@ -1,87 +1,77 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>washing-machine-statut</ion-title>
+    <ion-title>Washing Machine Statut</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-text-center">
+
   <ion-refresher slot="fixed" (ionRefresh)="refreshPage($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
-    <ion-title id="mainTitle" class="ion-text-center">Machines en cours :</ion-title>
 
-    <div id='gauge-div'>
-      <liquid-gauge id='gauge-element' [value]="size" ></liquid-gauge>
-    </div>
+  <ion-title id="mainTitle" class="ion-text-center">Machines en cours :</ion-title>
 
-      <ion-button *ngIf="statut=='success' && showJoinButton" (click)="joinMachine('join')" class="center-button" shape="round">Participer ?&nbsp;<ion-icon name="checkmark-circle"></ion-icon></ion-button>
-            
-      <ion-card *ngIf="statut=='joining'">
-        <ion-card-title class="ion-text-center" class="ion-padding">Quantité de linge : <ion-label>{{rangeQuantity}} %</ion-label></ion-card-title>
+  <div id='gauge-div'>
+    <liquid-gauge id='gauge-element' [value]="size" ></liquid-gauge>
+  </div>
 
-        <ion-item>
-            <ion-range (ionChange)="updateRange()" [(ngModel)]="rangeQuantity" id="sizeRange" min="0" max="{{maxRange}}" step="10" snaps="true" ticks="false" color="secondary" pin="false">
-                <ion-label slot="end">MAX : {{maxRange}} %</ion-label>
-            </ion-range>
-        </ion-item>
+  <ion-button *ngIf="statut=='success' && showJoinButton" (click)="joinMachine('join')" class="center-button" shape="round">
+    Participer ?&nbsp;<ion-icon name="checkmark-circle"></ion-icon>
+  </ion-button>
+          
+  <ion-card *ngIf="statut=='joining'">
+    <ion-card-title class="ion-text-center" class="ion-padding">Quantité de linge : <ion-label>{{rangeQuantity}} %</ion-label></ion-card-title>
 
-        <ion-button (click)="updateSize()" color="success" class="center-button" shape="round">Valider&nbsp;<ion-icon name="checkmark-circle"></ion-icon></ion-button>
-        <ion-button (click)="joinMachine('leave')" color="danger" class="center-button" shape="round">Annuler&nbsp;<ion-icon name="close-circle"></ion-icon></ion-button>
-      </ion-card>
+    <ion-item>
+        <ion-range (ionChange)="updateRange()" [(ngModel)]="rangeQuantity" id="sizeRange" min="0" max="{{maxRange}}" step="10" snaps="true" ticks="false" color="secondary" pin="false">
+            <ion-label slot="end">MAX : {{maxRange}} %</ion-label>
+        </ion-range>
+    </ion-item>
 
-      <ion-card>
-        <ion-card-header class="card-text">
-            <ion-card-title class="ion-text-center">Type de lavage : <b>{{machines.typeName}}</b></ion-card-title>
-        </ion-card-header>
+    <ion-button (click)="updateSize()" color="success" class="center-button" shape="round">
+      Valider&nbsp;<ion-icon name="checkmark-circle"></ion-icon>
+    </ion-button>
 
-        <ion-card-content class="card-text" *ngIf='machines.message' class="ion-text-center">Message : {{machines.message}}</ion-card-content>
-        <ion-card-content class="card-text" class="ion-text-center">par : {{machines.creatorName}}</ion-card-content>
+    <ion-button (click)="joinMachine('leave')" color="danger" class="center-button" shape="round">
+      Annuler&nbsp;<ion-icon name="close-circle"></ion-icon>
+    </ion-button>
+  </ion-card>
 
-      </ion-card>
+  <ion-card>
+    <ion-card-header class="card-text">
+        <ion-card-title class="ion-text-center">Type de lavage : <b>{{machines.typeName}}</b></ion-card-title>
+    </ion-card-header>
 
-      <ion-card>
-          <ion-card-header class="card-text">
-            <ion-card-title class="ion-text-center">Pour <b>{{machines.day}}</b> à <b>{{machines.scheduleTime}}</b></ion-card-title>
-          </ion-card-header>
+    <ion-card-content class="card-text" class="ion-text-center">
+      <div *ngIf='machines.message'>Message : {{machines.message}}</div>par : {{machines.creatorName}}
+    </ion-card-content>
+  </ion-card>
 
-          <ion-card-content id="progressBarDiv">
-            <ion-label class="ion-text-center">Il reste : <b>{{countdown}}</b></ion-label>
-            <ion-progress-bar id="progressBar" [value]="progressTime" [buffer]="progressTime"></ion-progress-bar>
-          </ion-card-content>
+  <ion-card>
+      <ion-card-header class="card-text">
+        <ion-card-title class="ion-text-center">Pour <b>{{machines.day}}</b> à <b>{{machines.scheduleTime}}</b></ion-card-title>
+      </ion-card-header>
 
-      </ion-card>
+      <ion-card-content id="progressBarDiv">
+        <ion-label class="ion-text-center">Il reste : <b>{{countdown}}</b></ion-label>
+        <ion-progress-bar id="progressBar" [value]="progressTime" [buffer]="progressTime"></ion-progress-bar>
+      </ion-card-content>
+  </ion-card>
 
-      <ion-card *ngIf="contributors.length > 0">
-        <ion-card-header class="card-text">
-            <ion-card-title class="ion-text-center">Participants :</ion-card-title>
-        </ion-card-header>
+  <ion-card *ngIf="contributors.length > 0">
+    <ion-card-header class="card-text">
+        <ion-card-title class="ion-text-center">Participants :</ion-card-title>
+    </ion-card-header>
 
-        <ion-item *ngFor="let contributor of (contributors)">
-            <ion-avatar slot="start">
-              <img src="https://ionicframework.com/docs/demos/api/avatar/avatar.svg">
-            </ion-avatar>
-            <ion-label>{{contributor[1]}}</ion-label>
-            <ion-label class="size-contributors"><b>{{contributor[2]}} %</b></ion-label>
-          </ion-item>
+    <ion-item *ngFor="let contributor of (contributors)">
+      <ion-avatar slot="start">
+        <img src="https://ionicframework.com/docs/demos/api/avatar/avatar.svg">
+      </ion-avatar>
 
-      </ion-card>
+      <ion-label>{{contributor[1]}}</ion-label>
+      <ion-label class="size-contributors"><b>{{contributor[2]}} %</b></ion-label>
+    </ion-item>
 
-
-    <!--<div *ngIf="statut=='error'" class="center-div">
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title class="ion-text-center"><b>Erreur</b> : connexion au serveur impossible...</ion-card-title>
-        </ion-card-header>
-      </ion-card>
-
-      <ion-button (click)="getMachinesInfos()">
-        Rafraichir
-        <ion-icon slot="end" name="md-refresh"></ion-icon>
-      </ion-button>
-    </div>
-
-    <div color="primary" class="center-div" *ngIf="statut=='loading'">
-      <ion-spinner name="crescent"></ion-spinner>
-    </div>-->
-
+  </ion-card>
 </ion-content>

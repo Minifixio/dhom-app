@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { Observable } from 'rxjs';
 import { Events } from '@ionic/angular';
-import {Http, Headers, RequestOptions} from '@angular/http';
 import { AuthService } from '../services/auth.service';
 import { NavController } from '@ionic/angular';
 
@@ -26,32 +25,24 @@ export class WashingMachineStatutPage implements OnInit {
     scheduleDate: ''
   };
 
-  testMessage = 'hello';
-  progressTime;
+  progressTime: number;
   countdown: string;
   today = new Date();
-  size = 0;
-  createdBy: string;
-  scheduleTime: string;
-  userName: any;
-  day: string;
-  type;
+
+  rangeQuantity: number;
+  globalSize: number;
+  maxRange: number;
+  size = 0; // Default size : zero to let the gauge load propreply
+
+  showJoinButton = true;
   statut = 'loading';
-  message;
-  rangeQuantity;
-  globalSize;
-  maxRange;
+
   userId = this.authService.getUserId();
   contributors = [];
-  showJoinButton = true;
-  urlApi = 'http://192.168.10.22:3000';
-  uriApi = 'v1';
-
 
   constructor(
     private apiService: ApiService,
     public events: Events,
-    private http: Http,
     private authService: AuthService,
     public navCtrl: NavController
   ) {
@@ -77,13 +68,12 @@ export class WashingMachineStatutPage implements OnInit {
   async getMachinesInfos() {
     this.statut = 'loading';
     const result = await this.apiService.getMachine().toPromise();
+    this.statut = 'success';
 
     this.machines = result[0];
     this.size = this.machines.size;
     this.globalSize = this.machines.size;
-    this.machines.message = this.message;
 
-    this.statut = 'success';
     this.maxRange = 100 - this.machines.size;
     this.udpateCountdown(this.machines.scheduleDate);
 
@@ -98,9 +88,7 @@ export class WashingMachineStatutPage implements OnInit {
   getContributors() {
     this.contributors = [];
     this.apiService.getContributors().subscribe(data => {
-      console.log(data);
       for (const [key, value] of Object.entries(data)) {
-        console.log(`${key}: ${value.userid}`);
         this.apiService.getUserById(value.userid).then(data => {
           this.contributors.push([value.userid, data, value.size]);
 
@@ -110,15 +98,12 @@ export class WashingMachineStatutPage implements OnInit {
               this.showJoinButton = false;
             }
           });
-
-          console.log(this.contributors);
         });
       }
     });
   }
 
   refreshPage(event) {
-    console.log(event);
     this.getContributors();
     this.getMachinesInfos();
     setTimeout(() => {
@@ -127,7 +112,6 @@ export class WashingMachineStatutPage implements OnInit {
   }
 
   updateRange() {
-    console.log(this.rangeQuantity);
     this.size = this.globalSize + this.rangeQuantity;
   }
 
@@ -142,10 +126,6 @@ export class WashingMachineStatutPage implements OnInit {
 
   updateSize() {
     this.statut = 'success';
-    var headers = new Headers();
-    headers.append('Accept', 'application/json');
-    headers.append('Content-Type', 'application/json' );
-    const options = new RequestOptions({ headers: headers });
 
     const postParams = {
       body: {
@@ -155,12 +135,7 @@ export class WashingMachineStatutPage implements OnInit {
       }
     };
 
-    this.http.post(`${this.urlApi}/${this.uriApi}/join-machine`, postParams, options)
-    .subscribe(data => {
-      console.log(data['_body']);
-     }, error => {
-      console.log(error); // Error getting the data
-    });
+    this.apiService.post('join-machine', postParams);
   }
 
   udpateCountdown(dateString: string) {
@@ -183,12 +158,8 @@ export class WashingMachineStatutPage implements OnInit {
     }
 
     const timeBetween = (date.getTime() - today.getTime()) / 3600000;
-    console.log(timeBetween);
     this.progressTime = timeBetween / 48;
-    console.log(hoursDiff);
-    console.log(minutesDiff);
 
     this.countdown = (hoursDiff + 'h et ' + minutesDiff + 'min');
-
   }
 }

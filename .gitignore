@@ -32,10 +32,14 @@ dhom_app/$RECYCLE.BIN/
 
 node-server/node_modules
 node-server/serviceAccountKey.json
+node-server/google-services.json
+node-server/.git/
+node-server/.gitignore
 envStart.sh
 
 dhom_app/.DS_Store
 dhom_app/Thumbs.db
 dhom_app/UserInterfaceState.xcuserstate
+dhom_app/src/app/services/constants.ts
 
 workspace_dhom.code-workspace

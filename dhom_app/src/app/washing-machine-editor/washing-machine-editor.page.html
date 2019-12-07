@@ -14,26 +14,28 @@
       <ion-radio-group>
 
         <ion-list-header>
-        <ion-label>Type de lavage</ion-label>
-      </ion-list-header>
+          <ion-label>Type de lavage</ion-label>
+        </ion-list-header>
 
-      <ion-item *ngFor="let machineType of machineTypes">
-        <ion-label>{{machineType.infos.name}}</ion-label>
-        <ion-radio (ionSelect)="onSelectRadioItem(machineType)" value={{machineType.id}}></ion-radio>
-      </ion-item>
+        <ion-item *ngFor="let machineType of machineTypes">
+          <ion-label>{{machineType.infos.name}}</ion-label>
+          <ion-radio (ionSelect)="onSelectRadioItem(machineType)" value={{machineType.id}}></ion-radio>
+        </ion-item>
 
       </ion-radio-group>
     </ion-list>
   </ion-card>
+
 
   <ion-card>
     <ion-item>
         <ion-label>Quantité</ion-label>
         <ion-range [(ngModel)]="rangeQuantity" id="sizeRange" min="0" max="100" step="10" snaps="true" ticks="false" color="secondary" pin="false"></ion-range>
     </ion-item>
-    <ion-label>{{rangeQuantity}} %</ion-label>
 
+    <ion-label>{{rangeQuantity}} %</ion-label>
   </ion-card>
+
 
   <ion-card>
     <ion-item>
@@ -55,8 +57,7 @@
   </ion-card>
 
   <ion-button class="ion-margin" id="okButton"  color="primary" (click)="addMachine()">OK</ion-button>
-
-  <ion-button margin id="okButton"  color="primary" (click)="test()">Test</ion-button>
+  <ion-button class="ion-margin" id="okButton"  color="primary" (click)="test()">Test</ion-button>
 
 </ion-content>
 
