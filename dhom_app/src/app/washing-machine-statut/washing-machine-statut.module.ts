@@ -7,8 +7,8 @@ import { IonicModule } from '@ionic/angular';
 
 import { WashingMachineStatutPage } from './washing-machine-statut.page';
 
-import { NgxD3LiquidFillGaugeComponent } from '../../components/ngx-d3-liquid-fill-gauge/ngx-d3-liquid-fill-gauge.component';
 import { LiquidGaugeComponent } from '../../components/liquid-gauge/liquid-gauge';
+import { NgxD3LiquidFillGaugeModule } from 'src/components/ngx-d3-liquid-fill-gauge/ngx-d3-liquid-fill-gauge.module';
 
 const routes: Routes = [
   {
@@ -22,8 +22,9 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
+    NgxD3LiquidFillGaugeModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [WashingMachineStatutPage, NgxD3LiquidFillGaugeComponent, LiquidGaugeComponent]
+  declarations: [WashingMachineStatutPage, LiquidGaugeComponent]
 })
 export class WashingMachineStatutPageModule {}
